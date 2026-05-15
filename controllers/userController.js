@@ -13,7 +13,7 @@ export const registerUser = async (req, res) => {
     const user = await User.create({
       name,
       email,
-      password, // ❗ plain text (not secure)
+      password, // plain text (not secure)
       university
     });
 
