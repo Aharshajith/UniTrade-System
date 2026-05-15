@@ -6,13 +6,14 @@ import {
   updateItem,
   deleteItem
 } from "../controllers/itemController.js";
+import { verifyUser } from "../middleware/verifyUser.js";
 
 const router = express.Router();
 
-router.post("/", createItem);
 router.get("/", getAllItems);
 router.get("/:id", getItemById);
-router.put("/:id", updateItem);
-router.delete("/:id", deleteItem);
+router.post("/", verifyUser, createItem);
+router.put("/:id", verifyUser, updateItem);
+router.delete("/:id", verifyUser, deleteItem);
 
 export default router;

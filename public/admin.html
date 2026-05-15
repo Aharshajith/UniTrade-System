@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniTrade Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="admin-body">
+  <header class="header">
+    <a href="index.html" class="brand">
+      <span class="brand-icon">U</span>
+      <span class="brand-text">UniTrade Admin</span>
+    </a>
+    <div id="admin-auth-area" class="auth-area"></div>
+  </header>
+
+  <main class="main">
+    <section id="admin-login-view" class="view active">
+      <div class="auth-card admin-login-card">
+        <h2>Admin sign in</h2>
+        <p class="subtitle">Manage users and marketplace listings.</p>
+        <form id="form-admin-login" class="auth-form">
+          <label>Email <input type="email" name="email" required autocomplete="email" /></label>
+          <label>Password <input type="password" name="password" required autocomplete="current-password" /></label>
+          <button type="submit" class="btn btn-primary btn-block">Log in</button>
+        </form>
+        <a href="index.html" class="back-link">← Back to marketplace</a>
+      </div>
+    </section>
+
+    <section id="admin-dashboard-view" class="view">
+      <div class="page-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p class="subtitle">View and remove users and items.</p>
+        </div>
+      </div>
+
+      <div class="admin-tabs">
+        <button type="button" class="admin-tab active" data-tab="users">Users (<span id="users-count">0</span>)</button>
+        <button type="button" class="admin-tab" data-tab="items">Items (<span id="items-count">0</span>)</button>
+      </div>
+
+      <div id="admin-panel-users" class="admin-panel active">
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>University</th>
+                <th>Faculty</th>
+                <th>Phone</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="admin-users-body"></tbody>
+          </table>
+        </div>
+        <p id="admin-users-empty" class="empty-state hidden">No users registered.</p>
+      </div>
+
+      <div id="admin-panel-items" class="admin-panel">
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Price (LKR)</th>
+                <th>Category</th>
+                <th>Seller</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="admin-items-body"></tbody>
+          </table>
+        </div>
+        <p id="admin-items-empty" class="empty-state hidden">No items listed.</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniTrade — University Marketplace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="brand" onclick="showView('marketplace')">
+      <span class="brand-icon">U</span>
+      <span class="brand-text">UniTrade</span>
+    </div>
+    <nav class="nav" id="main-nav">
+      <button type="button" class="nav-link active" data-view="marketplace">Marketplace</button>
+      <button type="button" class="nav-link hidden" data-view="my-items" id="nav-my-items">My Listings</button>
+    </nav>
+    <div class="auth-area" id="auth-area">
+      <a href="admin.html" class="btn btn-ghost btn-sm admin-link">Admin</a>
+      <button type="button" class="btn btn-ghost" id="btn-show-login">Log in</button>
+      <button type="button" class="btn btn-primary" id="btn-show-register">Sign up</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Marketplace -->
+    <section id="view-marketplace" class="view active">
+      <div class="hero">
+        <h1>Buy &amp; sell on campus</h1>
+        <p>Books, electronics, dorm gear — trade safely with fellow students.</p>
+      </div>
+      <div class="toolbar">
+        <input type="search" id="search-items" class="input search-input" placeholder="Search items..." />
+        <select id="filter-category" class="input select-input">
+          <option value="">All categories</option>
+        </select>
+      </div>
+      <div class="category-chips" id="category-chips" role="group" aria-label="Browse by category"></div>
+      <div id="items-grid" class="items-grid"></div>
+      <p id="marketplace-empty" class="empty-state hidden">No items listed yet. Be the first to sell something!</p>
+    </section>
+
+    <!-- My listings -->
+    <section id="view-my-items" class="view">
+      <div class="page-header">
+        <div>
+          <h1>My listings</h1>
+          <p class="subtitle">Manage items you have posted for sale.</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="btn-open-add-item">+ Add item</button>
+      </div>
+      <div id="my-items-grid" class="items-grid"></div>
+      <p id="my-items-empty" class="empty-state hidden">You have not listed any items yet.</p>
+    </section>
+
+    <!-- Auth -->
+    <section id="view-auth" class="view">
+      <div class="auth-card">
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" data-auth="login">Log in</button>
+          <button type="button" class="auth-tab" data-auth="register">Sign up</button>
+        </div>
+
+        <form id="form-login" class="auth-form">
+          <h2>Welcome back</h2>
+          <label>Email <input type="email" name="email" required autocomplete="email" /></label>
+          <label>Password <input type="password" name="password" required autocomplete="current-password" /></label>
+          <button type="submit" class="btn btn-primary btn-block">Log in</button>
+        </form>
+
+        <form id="form-register" class="auth-form hidden">
+          <h2>Create account</h2>
+          <label>Full name <input type="text" name="name" required /></label>
+          <label>Email <input type="email" name="email" required autocomplete="email" /></label>
+          <label>Password <input type="password" name="password" required minlength="4" autocomplete="new-password" /></label>
+          <label>University <input type="text" name="university" required /></label>
+          <label>Faculty <input type="text" name="faculty" required /></label>
+          <label>Phone number <input type="tel" name="phoneNumber" required /></label>
+          <button type="submit" class="btn btn-primary btn-block">Create account</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add / Edit item modal -->
+  <div id="item-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-panel" role="dialog" aria-labelledby="item-modal-title">
+      <div class="modal-header">
+        <h2 id="item-modal-title">Add item</h2>
+        <button type="button" class="btn-icon" data-close-modal aria-label="Close">&times;</button>
+      </div>
+      <form id="form-item" class="modal-form">
+        <input type="hidden" name="itemId" />
+        <label>Title <input type="text" name="title" required maxlength="120" /></label>
+        <label>Description <textarea name="description" rows="3" placeholder="Condition, details..."></textarea></label>
+        <div class="form-row">
+          <label>Price (LKR) <input type="number" name="price" required min="0" step="1" /></label>
+          <label>Category
+            <input type="text" name="category" list="category-list" placeholder="e.g. Books" />
+            <datalist id="category-list">
+              <option value="Books"></option>
+              <option value="Electronics"></option>
+              <option value="Furniture"></option>
+              <option value="Clothing"></option>
+              <option value="Fashion"></option>
+              <option value="Sports"></option>
+              <option value="Stationery"></option>
+              <option value="Hostel & Living"></option>
+              <option value="Other"></option>
+            </datalist>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary" id="item-form-submit">Save item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+

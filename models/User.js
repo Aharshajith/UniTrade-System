@@ -14,6 +14,18 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true
+    },
+    university: {
+      type: String,
+      required: true
+    },
+    faculty: {
+      type: String,
+      required: true
+    },
+    phoneNumber: {
+      type: String,
+      required: true
     }
   },
   { timestamps: true }
