@@ -1,6 +1,6 @@
 import Item from "../models/Item.js";
 
-const sellerFields = "name email university faculty";
+const sellerFields = "name email university faculty phoneNumber";
 
 const isOwner = (item, userId) =>
   item.sellerId && item.sellerId.toString() === userId.toString();

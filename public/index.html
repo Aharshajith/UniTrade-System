@@ -16,19 +16,32 @@
       <span class="brand-text">UniTrade</span>
     </div>
     <nav class="nav" id="main-nav">
-      <button type="button" class="nav-link active" data-view="marketplace">Marketplace</button>
+      <button type="button" class="nav-link" data-view="marketplace">Marketplace</button>
       <button type="button" class="nav-link hidden" data-view="my-items" id="nav-my-items">My Listings</button>
     </nav>
     <div class="auth-area" id="auth-area">
-      <a href="admin.html" class="btn btn-ghost btn-sm admin-link">Admin</a>
-      <button type="button" class="btn btn-ghost" id="btn-show-login">Log in</button>
-      <button type="button" class="btn btn-primary" id="btn-show-register">Sign up</button>
+      <a href="admin.html" class="btn btn-ghost btn-header admin-link">Admin</a>
+      <button type="button" class="btn btn-ghost btn-header" id="btn-show-login">Log in</button>
+      <button type="button" class="btn btn-primary btn-header" id="btn-show-register">Sign up</button>
     </div>
   </header>
 
   <main class="main">
+    <!-- Welcome -->
+    <section id="view-welcome" class="view welcome-view active" aria-label="Welcome">
+      <div class="welcome-card">
+        <div class="welcome-logo" aria-hidden="true">U</div>
+        <h1 class="welcome-title">Welcome to UniTrade</h1>
+        <p class="welcome-tagline">Your university marketplace for books, electronics, and campus essentials.</p>
+        <p class="welcome-hint">Taking you to the marketplace&hellip;</p>
+        <div class="welcome-progress" aria-hidden="true">
+          <span class="welcome-progress-bar"></span>
+        </div>
+      </div>
+    </section>
+
     <!-- Marketplace -->
-    <section id="view-marketplace" class="view active">
+    <section id="view-marketplace" class="view">
       <div class="hero">
         <h1>Buy &amp; sell on campus</h1>
         <p>Books, electronics, dorm gear — trade safely with fellow students.</p>
@@ -85,6 +98,22 @@
       </div>
     </section>
   </main>
+
+  <!-- Item detail & seller contact -->
+  <div id="item-detail-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" data-close-detail-modal></div>
+    <div class="modal-panel item-detail-panel" role="dialog" aria-labelledby="item-detail-title">
+      <div class="modal-header">
+        <h2 id="item-detail-title">Item details</h2>
+        <button type="button" class="btn-icon" data-close-detail-modal aria-label="Close">&times;</button>
+      </div>
+      <div id="item-detail-body" class="item-detail-body"></div>
+      <section class="item-detail-seller" aria-labelledby="item-detail-seller-heading">
+        <h3 id="item-detail-seller-heading">Seller contact</h3>
+        <div id="item-detail-contact" class="contact-list"></div>
+      </section>
+    </div>
+  </div>
 
   <!-- Add / Edit item modal -->
   <div id="item-modal" class="modal hidden" aria-hidden="true">

@@ -84,6 +84,9 @@ function showToast(message, type = "success") {
   showToast._timer = setTimeout(() => el.classList.add("hidden"), 3200);
 }
 
+const WELCOME_REDIRECT_MS = 3000;
+let welcomeRedirectTimer = null;
+
 function showView(name) {
   document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
   document.getElementById(`view-${name}`)?.classList.add("active");
@@ -92,32 +95,60 @@ function showView(name) {
     link.classList.toggle("active", link.dataset.view === name);
   });
 
+  document.body.classList.toggle("welcome-mode", name === "welcome");
+  document.querySelector(".header")?.classList.toggle("hidden", name === "welcome");
+
   if (name === "marketplace") loadItems();
   if (name === "my-items") loadMyItems();
 }
 
+function startWelcomeRedirect() {
+  clearTimeout(welcomeRedirectTimer);
+  document.documentElement.style.setProperty(
+    "--welcome-duration",
+    `${WELCOME_REDIRECT_MS}ms`
+  );
+  welcomeRedirectTimer = setTimeout(() => showView("marketplace"), WELCOME_REDIRECT_MS);
+}
+
 window.showView = showView;
+
+function getUserInitials(name) {
+  const parts = String(name ?? "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!parts.length) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
 
 function updateAuthUI() {
   const session = getSession();
   const area = document.getElementById("auth-area");
   const navMyItems = document.getElementById("nav-my-items");
+  const name = session?.user?.name ?? "";
+  const initials = getUserInitials(name);
+
+  area.classList.toggle("auth-area--signed-in", Boolean(session?.user));
 
   if (session?.user) {
     area.innerHTML = `
-      <a href="admin.html" class="btn btn-ghost btn-sm admin-link">Admin</a>
-      <div class="user-menu">
-        <span class="user-name">Hi, <strong>${escapeHtml(session.user.name)}</strong></span>
-        <button type="button" class="btn btn-ghost btn-sm" id="btn-logout">Log out</button>
+      <div class="user-badge" role="status" aria-live="polite">
+        <span class="user-avatar" aria-hidden="true">${escapeHtml(initials)}</span>
+        <span class="user-badge-text">
+          <span class="user-badge-greeting">Hi, <span class="user-badge-name">${escapeHtml(name)}</span></span>
+        </span>
       </div>
+      <button type="button" class="btn btn-ghost btn-header" id="btn-logout">Log out</button>
     `;
     document.getElementById("btn-logout").addEventListener("click", logout);
     navMyItems.classList.remove("hidden");
   } else {
     area.innerHTML = `
-      <a href="admin.html" class="btn btn-ghost btn-sm admin-link">Admin</a>
-      <button type="button" class="btn btn-ghost" id="btn-show-login">Log in</button>
-      <button type="button" class="btn btn-primary" id="btn-show-register">Sign up</button>
+      <a href="admin.html" class="btn btn-ghost btn-header admin-link">Admin</a>
+      <button type="button" class="btn btn-ghost btn-header" id="btn-show-login">Log in</button>
+      <button type="button" class="btn btn-primary btn-header" id="btn-show-register">Sign up</button>
     `;
     navMyItems.classList.add("hidden");
   }
@@ -168,7 +199,7 @@ function renderItemCard(item, { showActions = false } = {}) {
       : "";
 
   return `
-    <article class="item-card ${own ? "own" : ""}" data-id="${item._id}">
+    <article class="item-card item-card--selectable ${own ? "own" : ""}" data-id="${item._id}" tabindex="0" role="button" aria-label="View details for ${escapeHtml(item.title)}">
       ${item.category ? `<span class="item-category">${escapeHtml(item.category)}</span>` : ""}
       <h3 class="item-title">${escapeHtml(item.title)}</h3>
       <div class="item-price">${formatPrice(item.price)}</div>
@@ -181,11 +212,119 @@ function renderItemCard(item, { showActions = false } = {}) {
 
 function bindItemActions(container) {
   container.querySelectorAll("[data-edit]").forEach((btn) => {
-    btn.addEventListener("click", () => openEditItem(btn.dataset.edit));
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openEditItem(btn.dataset.edit);
+    });
   });
   container.querySelectorAll("[data-delete]").forEach((btn) => {
-    btn.addEventListener("click", () => deleteItem(btn.dataset.delete));
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteItem(btn.dataset.delete);
+    });
   });
+}
+
+function getSellerInfo(item) {
+  const seller = item.sellerId;
+  if (typeof seller !== "object" || !seller) {
+    return {
+      name: "Unknown",
+      email: "—",
+      phoneNumber: "—",
+      university: "—",
+      faculty: "—"
+    };
+  }
+  return {
+    name: seller.name || "Unknown",
+    email: seller.email || "—",
+    phoneNumber: seller.phoneNumber || "—",
+    university: seller.university || "—",
+    faculty: seller.faculty || "—"
+  };
+}
+
+function renderContactRow(label, value, { href } = {}) {
+  const safeValue = escapeHtml(value);
+  const content =
+    href && value && value !== "—"
+      ? `<a href="${href}" class="contact-link">${safeValue}</a>`
+      : `<strong>${safeValue}</strong>`;
+  return `
+    <div class="contact-row">
+      <span class="contact-label">${escapeHtml(label)}</span>
+      ${content}
+    </div>
+  `;
+}
+
+function openItemDetail(itemId) {
+  const item = allItems.find((i) => String(i._id) === String(itemId));
+  if (!item) return;
+
+  const own = getCurrentUserId() && getSellerId(item) === getCurrentUserId();
+  const seller = getSellerInfo(item);
+  const contactEl = document.getElementById("item-detail-contact");
+
+  document.getElementById("item-detail-title").textContent = item.title || "Item details";
+  document.getElementById("item-detail-body").innerHTML = `
+    ${item.category ? `<span class="item-category">${escapeHtml(item.category)}</span>` : ""}
+    <p class="item-detail-price">${formatPrice(item.price)}</p>
+    ${
+      item.description
+        ? `<p class="item-detail-desc">${escapeHtml(item.description)}</p>`
+        : `<p class="item-detail-desc item-detail-desc--empty">No description provided.</p>`
+    }
+  `;
+
+  if (own) {
+    contactEl.innerHTML = `
+      <p class="item-detail-own-note">This is your listing. Buyers will see your contact details here.</p>
+      ${renderContactRow("Name", seller.name)}
+      ${renderContactRow("Email", seller.email, { href: `mailto:${encodeURIComponent(seller.email)}` })}
+      ${renderContactRow("Phone", seller.phoneNumber, { href: `tel:${seller.phoneNumber.replace(/\s/g, "")}` })}
+      ${renderContactRow("University", seller.university)}
+      ${renderContactRow("Faculty", seller.faculty)}
+    `;
+  } else {
+    contactEl.innerHTML = `
+      ${renderContactRow("Name", seller.name)}
+      ${renderContactRow("Email", seller.email, { href: `mailto:${encodeURIComponent(seller.email)}` })}
+      ${renderContactRow("Phone", seller.phoneNumber, { href: `tel:${seller.phoneNumber.replace(/\s/g, "")}` })}
+      ${renderContactRow("University", seller.university)}
+      ${renderContactRow("Faculty", seller.faculty)}
+    `;
+  }
+
+  openItemDetailModal();
+}
+
+function bindItemCardClicks(container) {
+  container.querySelectorAll(".item-card--selectable").forEach((card) => {
+    card.addEventListener("click", (e) => {
+      if (e.target.closest(".item-actions")) return;
+      openItemDetail(card.dataset.id);
+    });
+    card.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      if (e.target.closest(".item-actions")) return;
+      e.preventDefault();
+      openItemDetail(card.dataset.id);
+    });
+  });
+}
+
+function openItemDetailModal() {
+  const modal = document.getElementById("item-detail-modal");
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function closeItemDetailModal() {
+  const modal = document.getElementById("item-detail-modal");
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
 }
 
 // ——— Items ———
@@ -283,6 +422,7 @@ function applyFilters() {
     empty.classList.add("hidden");
     grid.innerHTML = filtered.map((i) => renderItemCard(i)).join("");
     bindItemActions(grid);
+    bindItemCardClicks(grid);
   }
 }
 
@@ -310,6 +450,7 @@ async function loadMyItems() {
       empty.classList.add("hidden");
       grid.innerHTML = mine.map((i) => renderItemCard(i, { showActions: true })).join("");
       bindItemActions(grid);
+      bindItemCardClicks(grid);
     }
   } catch (err) {
     showToast(err.message, "error");
@@ -391,7 +532,8 @@ function logout() {
 // ——— Init ———
 document.addEventListener("DOMContentLoaded", () => {
   updateAuthUI();
-  loadItems();
+  showView("welcome");
+  startWelcomeRedirect();
 
   document.getElementById("auth-area").addEventListener("click", (e) => {
     if (e.target.id === "btn-show-login") {
@@ -502,6 +644,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelectorAll("[data-close-modal]").forEach((el) => {
     el.addEventListener("click", closeModal);
+  });
+
+  document.querySelectorAll("[data-close-detail-modal]").forEach((el) => {
+    el.addEventListener("click", closeItemDetailModal);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    const detailModal = document.getElementById("item-detail-modal");
+    if (!detailModal.classList.contains("hidden")) closeItemDetailModal();
   });
 
   document.getElementById("search-items").addEventListener("input", applyFilters);

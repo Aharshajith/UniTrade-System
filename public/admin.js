@@ -87,16 +87,34 @@ function updateAdminAuthUI() {
   const session = getAdminSession();
 
   if (session?.admin) {
+    const adminName = session.admin.name ?? "";
+    const adminInitials =
+      adminName
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((part) => part[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase() || "A";
+
+    area.classList.add("auth-area--signed-in");
     area.innerHTML = `
-      <span class="user-name">Admin: <strong>${escapeHtml(session.admin.name)}</strong></span>
-      <button type="button" class="btn btn-ghost btn-sm" id="btn-admin-logout">Log out</button>
+      <div class="user-badge user-badge--admin" role="status">
+        <span class="user-avatar" aria-hidden="true">${escapeHtml(adminInitials)}</span>
+        <span class="user-badge-text">
+          <span class="user-badge-greeting">Hi, <span class="user-badge-name">${escapeHtml(adminName)}</span></span>
+        </span>
+      </div>
+      <button type="button" class="btn btn-ghost btn-header" id="btn-admin-logout">Log out</button>
     `;
     document.getElementById("btn-admin-logout").addEventListener("click", () => {
       setAdminSession(null);
       showToast("Logged out");
     });
   } else {
-    area.innerHTML = `<a href="index.html" class="btn btn-ghost btn-sm">Marketplace</a>`;
+    area.classList.remove("auth-area--signed-in");
+    area.innerHTML = `<a href="index.html" class="btn btn-ghost btn-header">Marketplace</a>`;
   }
 }
 
