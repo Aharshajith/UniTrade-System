@@ -1,44 +1,65 @@
-# UniTrade System – Backend API
+# UniTrade System
 
-## Project Title
-UniTrade System – University Student Marketplace Backend
-
----
-
-## Problem Description
-University students face difficulties when buying or selling used items such as books, electronic devices, and hostel equipment.  
-Most existing solutions like social media groups are unorganized, unreliable, and unsafe.
-
-There is a need for a dedicated system where students can trade items securely and efficiently.
-
----
-
-## Proposed Solution
-UniTrade System is a web-based backend solution designed specifically for university students.  
-It provides RESTful APIs that allow users to register, log in, and manage item listings using CRUD operations.
+A university marketplace for students to buy and sell used items (books, electronics, dorm gear, and more). Built with **Node.js**, **Express**, **MongoDB**, and a **responsive web frontend**.
 
 ---
 
 ## Features
-- User registration
-- User login
-- Add items for sale
-- View all items
-- View a single item
-- Update item details
-- Delete items
-- RESTful API architecture
-- MongoDB database integration
-- API testing with Postman
+
+- Browse, search, and filter listings by category
+- User sign up / log in and manage your own items
+- Item popup with seller contact (name, email, phone, university, faculty)
+- Welcome screen → auto-redirect to marketplace
+- Admin dashboard to view and delete users and items
 
 ---
 
-## Technologies Used
-- Node.js
-- Express.js
-- MongoDB
-- Mongoose
-- Postman
-- Git & GitHub
-- dotenv
-- CORS
+## Tech stack
+
+Node.js · Express · MongoDB · Mongoose · HTML · CSS · JavaScript
+
+---
+
+## Quick start
+
+**Requirements:** Node.js, MongoDB running locally
+
+```bash
+npm install
+npm start
+```
+
+- **Marketplace:** http://localhost:5000  
+- **Admin:** http://localhost:5000/admin.html  
+
+Database: `mongodb://127.0.0.1:27017/unitrade` (see `config/db.js`)
+
+---
+
+## API (base: `/api`)
+
+| Users | Items | Admin |
+|-------|-------|-------|
+| `POST /users/register` | `GET /items` | `POST /admin/login` |
+| `POST /users/login` | `POST /items` *(auth)* | `GET /admin/users` *(auth)* |
+| | `PUT /items/:id` *(auth)* | `GET /admin/items` *(auth)* |
+| | `DELETE /items/:id` *(auth)* | `DELETE /admin/users/:id` *(auth)* |
+
+**User auth headers:** `x-user-email`, `x-user-password`  
+**Admin auth headers:** `x-admin-email`, `x-admin-password`
+
+---
+
+## Project layout
+
+```
+config/  controllers/  middleware/  models/  routes/  public/  index.js
+```
+
+---
+
+## Note
+
+Passwords are stored in plain text in this version—not for production without hashing and proper authentication.
+
+**License:** ISC
